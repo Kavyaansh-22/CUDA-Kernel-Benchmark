@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUDA Kernel Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060608;
+  --surface: #0d0d10;
+  --surface2: #13131a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+  --green: #00e5a0;
+  --blue: #4d9fff;
+  --gray: #555570;
+  --red: #ff5f5f;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+header { margin-bottom: 2.5rem; }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: var(--mono);
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #fff;
+}
+h1 span { color: var(--green); }
+.subtitle {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 300;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.metric {
+  background: var(--surface);
+  padding: 20px;
+  transition: background 0.2s;
+}
+.metric:hover { background: var(--surface2); }
+.metric-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.metric-val {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.03em;
+}
+.metric-val.green { color: var(--green); }
+.metric-val.blue  { color: var(--blue); }
+.controls {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 1.5rem;
+}
+.controls-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.ctrl-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  width: 90px;
+  flex-shrink: 0;
+}
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 2px;
+  background: var(--border2);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,229,160,0.5);
+}
+.ctrl-val {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  width: 52px;
+  text-align: right;
+}
+select {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+}
+.run-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  background: transparent;
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.run-btn:hover { background: rgba(0,229,160,0.07); box-shadow: 0 0 20px rgba(0,229,160,0.12); }
+.run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.spinner {
+  display: none;
+  width: 12px; height: 12px;
+  border: 2px solid transparent;
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+.loading .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.err { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--red); }
+.results { display: none; }
+.results.show { display: block; }
+.section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.bar-group { margin-bottom: 14px; }
+.bar-meta { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.bar-name { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.bar-ms { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text); }
+.bar-track { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); width: 0%; }
+.bw-box {
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+.bw-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.bw-nums { font-family: var(--mono); font-size: 13px; color: var(--text); }
+.bw-track { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.bw-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--green));
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
+  width: 0%;
+}
+.bw-sub { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.tags { margin-top: 3rem; display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+@media (max-width: 600px) {
+  .metrics { grid-template-columns: repeat(2,1fr); }
+  .wrap { padding: 2rem 1.25rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">// cuda kernel lab</div>
+    <h1>KERNEL<br><span>BENCHMARK</span></h1>
+    <p class="subtitle">fused relu + bias add &nbsp;·&nbsp; memory bandwidth analysis &nbsp;·&nbsp; nvidia t4</p>
+  </header>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Fused</div><div class="metric-val green" id="m-fused">—</div></div>
+    <div class="metric"><div class="metric-label">Unfused</div><div class="metric-val" id="m-unfused">—</div></div>
+    <div class="metric"><div class="metric-label">Speedup</div><div class="metric-val blue" id="m-speedup">—</div></div>
+    <div class="metric"><div class="metric-label">BW Util</div><div class="metric-val" id="m-bw">—</div></div>
+  </div>
+
+  <div class="controls">
+    <div class="controls-title">// parameters</div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">rows</span>
+      <input type="range" id="rows" min="128" max="8192" step="128" value="1024">
+      <span class="ctrl-val" id="rows-v">1024</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">cols</span>
+      <input type="range" id="cols" min="128" max="8192" step="128" value="1024">
+      <span class="ctrl-val" id="cols-v">1024</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">block size</span>
+      <select id="block">
+        <option>64</option><option>128</option><option selected>256</option><option>512</option>
+      </select>
+      <span class="ctrl-val"></span>
+    </div>
+    <button class="run-btn" id="btn" onclick="run()">
+      <span class="spinner"></span>
+      <span id="btn-text">▶ run benchmark</span>
+    </button>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="section-title">// latency — lower is better</div>
+    <div class="bar-group">
+      <div class="bar-meta"><span class="bar-name">fused kernel</span><span class="bar-ms" id="t-fused">—</span></div>
+      <div class="bar-track"><div class="bar-fill" id="b-fused" style="background:var(--green)"></div></div>
+    </div>
+    <div class="bar-group">
+      <div class="bar-meta"><span class="bar-name">unfused (2 kernels)</span><span class="bar-ms" id="t-unfused">—</span></div>
+      <div class="bar-track"><div class="bar-fill" id="b-unfused" style="background:var(--blue)"></div></div>
+    </div>
+    <div class="bar-group">
+      <div class="bar-meta"><span class="bar-name">pytorch baseline</span><span class="bar-ms" id="t-pytorch">—</span></div>
+      <div class="bar-track"><div class="bar-fill" id="b-pytorch" style="background:var(--gray)"></div></div>
+    </div>
+    <div class="bw-box">
+      <div class="bw-head">
+        <span class="section-title" style="margin:0">// memory bandwidth</span>
+        <span class="bw-nums" id="bw-nums">—</span>
+      </div>
+      <div class="bw-track"><div class="bw-fill" id="bw-fill"></div></div>
+      <div class="bw-sub" id="bw-sub">—</div>
+    </div>
+  </div>
+
+  <div class="tags">
+    <span class="tag">NVIDIA T4</span>
+    <span class="tag">CUDA 12.1</span>
+    <span class="tag">Modal Cloud</span>
+    <span class="tag">fused relu+bias</span>
+  </div>
+</div>
+
+<script>
+const API = "https://kavyansh-kundu--cuda-kernel-lab-serve.modal.run/benchmark";
+['rows','cols'].forEach(id => {
+  document.getElementById(id).oninput = () =>
+    document.getElementById(id+'-v').textContent = document.getElementById(id).value;
+});
+async function run() {
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.classList.add('loading');
+  document.getElementById('btn-text').textContent = 'running…';
+  document.getElementById('err').textContent = '';
+  try {
+    const res = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        rows: +document.getElementById('rows').value,
+        cols: +document.getElementById('cols').value,
+        block_size: +document.getElementById('block').value
+      })
+    });
+    const d = await res.json();
+    document.getElementById('m-fused').textContent   = d.fused_ms.toFixed(3)+' ms';
+    document.getElementById('m-unfused').textContent = d.unfused_ms.toFixed(3)+' ms';
+    document.getElementById('m-speedup').textContent = d.speedup.toFixed(2)+'×';
+    document.getElementById('m-bw').textContent      = d.fused_bw_util.toFixed(1)+'%';
+    const maxMs = Math.max(d.fused_ms, d.unfused_ms, d.pytorch_ms);
+    [['fused',d.fused_ms],['unfused',d.unfused_ms],['pytorch',d.pytorch_ms]].forEach(([k,v])=>{
+      document.getElementById('t-'+k).textContent = v.toFixed(4)+' ms';
+      setTimeout(()=>{ document.getElementById('b-'+k).style.width=(v/maxMs*100).toFixed(1)+'%'; },50);
+    });
+    const bwPct = (d.bw_fused_gb_s/d.peak_bw_gb_s*100).toFixed(1);
+    document.getElementById('bw-nums').textContent = d.bw_fused_gb_s+' / '+d.peak_bw_gb_s+' GB/s';
+    document.getElementById('bw-sub').textContent  = bwPct+'% of peak bandwidth utilized';
+    setTimeout(()=>{ document.getElementById('bw-fill').style.width=bwPct+'%'; },50);
+    document.getElementById('results').classList.add('show');
+  } catch(e) {
+    document.getElementById('err').textContent = 'error: '+e.message;
+  }
+  btn.disabled=false; btn.classList.remove('loading');
+  document.getElementById('btn-text').textContent='▶ run benchmark';
+}
+</script>
+</body>
+</html>
