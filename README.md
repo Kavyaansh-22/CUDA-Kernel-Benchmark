@@ -1,3 +1,10 @@
+# GPU Kernel Profiler Dashboard
+
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=vercel)](https://cuda-kernel-benchmark.vercel.app/)
+[![NVIDIA T4](https://img.shields.io/badge/Hardware-NVIDIA%20T4-76B900?style=for-the-badge&logo=nvidia)](https://www.nvidia.com/en-us/data-center/tesla-t4/)
+
+> Real-time CUDA kernel benchmarking tool running on an **NVIDIA T4 GPU** in the cloud.
+
 CUDA Performance Frontier: Custom Kernels vs. Frameworks
 This project is a high-performance benchmarking suite designed to profile the efficiency of custom CUDA C kernels against industry-standard PyTorch implementations. It provides a real-time comparison of execution speed, memory bandwidth utilization, and arithmetic intensity across local and cloud-based NVIDIA hardware.
 
@@ -26,6 +33,7 @@ Bandwidth Utilization (GB/s): Tracks how effectively the kernel uses the GPU's m
 Arithmetic Intensity: Categorizes kernels as either Compute-Bound or Memory-Bound.
 Speedup Ratio: Direct comparison (e.g., 1.9x) of custom kernels vs. standard PyTorch.
 
+
 Project Structure:
 .
 ├── backend/                # Serverless GPU Infrastructure
@@ -38,7 +46,6 @@ Project Structure:
 │   ├── fused_relu_bias.cu  # Custom C++ CUDA implementation
 │   └── fused_relu_bias.c   # CPU-based reference implementation
 └── readme.md               # Documentation and Roadmap
-
 
 Future Roadmap:
 Local vs. Cloud Latency: Adding deep-link measurements for data transfer overhead.
