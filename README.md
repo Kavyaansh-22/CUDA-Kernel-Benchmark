@@ -33,27 +33,19 @@ This lab implements a **low-level Fused ReLU + Bias Add kernel** from scratch in
 
 📊 Performance Metrics
 The dashboard visualizes critical hardware counters to provide an end-to-end performance profile:
-
 Throughput (TFLOPS): Raw computational throughput compared to T4 peak theoretical performance.
-
 Bandwidth Utilization: Efficiency of data movement across the memory bus (GB/s).
-
 The "Fusion" Speedup: Direct comparison between standard unfused PyTorch operations and the custom fused C++ implementation.
 
 🛠 Tech Stack
 Languages: CUDA C++, Python, JavaScript.
-
 Frameworks: PyTorch (Baseline), FastAPI.
-
 Hardware: NVIDIA T4 (Cloud), Local CPU (Baseline).
-
 Deployment: Modal (Backend), Vercel (Frontend).
 
 🏁 Future Roadmap
 [ ] Edge Integration: Porting benchmarks to NVIDIA Jetson to analyze Unified Memory performance.
-
 [ ] Vectorized Access: Implementing float4 memory access for enhanced throughput.
-
 [ ] Advanced Fusion: Developing fused LayerNorm and Softmax kernels for LLM-specific workloads.
 
 Author: Kavyaansh Kundu
