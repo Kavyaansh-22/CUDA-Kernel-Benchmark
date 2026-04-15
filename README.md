@@ -14,22 +14,16 @@ Hardware Profiling: Real-time analysis on NVIDIA T4 (Cloud) via Modal and future
 
 Tech Stack:
 GPU Backend: CUDA C++, NVIDIA T4 (Cloud), PyTorch.
-
 Infrastructure: Modal for serverless GPU execution and FastAPI for the benchmarking endpoint.
-
 Visualization: Live "Hacker-style" dashboard built with Vanilla JS and Chart.js.
-
 Profiling: High-precision cudaEvent_t timing and Roofline Model analysis.
 
 
 
-📊 Key Metrics Tracked
+📊 Key Metrics Tracked:
 Throughput (TFLOPS): Measures raw computational speed.
-
 Bandwidth Utilization (GB/s): Tracks how effectively the kernel uses the GPU's memory bus.
-
 Arithmetic Intensity: Categorizes kernels as either Compute-Bound or Memory-Bound.
-
 Speedup Ratio: Direct comparison (e.g., 1.9x) of custom kernels vs. standard PyTorch.
 
 Project Structure:
@@ -46,11 +40,9 @@ Project Structure:
 └── readme.md               # Documentation and Roadmap
 
 
-Future Roadmap
+Future Roadmap:
 Local vs. Cloud Latency: Adding deep-link measurements for data transfer overhead.
-
 Edge Integration: Running benchmarks on Raspberry Pi and NVIDIA Jetson to visualize "The Edge Gap."
-
 Fused Library: Expanding to more complex fused operations like LayerNorm and Softmax.
 
 Author: Kavyaansh Kundu
